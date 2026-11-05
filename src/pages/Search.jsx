@@ -1,4 +1,4 @@
-import { Link, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { useEffect, useState } from "react";
 import styles from "./Search.module.css";
 
@@ -11,13 +11,12 @@ import styles from "./Search.module.css";
 
 export const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 
-// export default => 파일 하나에 유일하게 1개만 "대표 수출품"으로 지정 가능
-//                   import 때 import Search from "./Search.jsx" 처럼,
-//                   유일값으로 불러옴
+// export default  => 파일 하나에 유일하게 1개만 "대표 수출품"으로 지정 가능
+//                    import 때 import Search from "./Search.jsx" 처럼,
+//                    유일값으로 불러옴
 // export => 몇 개든 상관없이 지정 가능
 //           import 때 import { API_KEY } from "./Search.jsx" 처럼,
 //           여러 요소(수출품)가 존재하는 객체 안에서 하나를 지정
-
 
 function Search() {
     const [searchParams] = useSearchParams(); // 변형된 state임
@@ -40,9 +39,26 @@ function Search() {
             .finally(() => setLoading(false));
     }, []);
 
+    const navigate = useNavigate();
+    const [input, setInput] = useState("");
+
+    const onChangeHandler = event => setInput(event.target.value);
+    const onSubmitHandler = event => {
+        event.preventDefault();
+        const k = input.trim();
+        if (!k) return;
+
+        navigate(`/search?keyword=${encodeURIComponent(k)}`);
+    };
+
     return (
         <div className={styles.container}>
             <h3>검색 결과 : {keyword}</h3>
+
+            <form onSubmit={onSubmitHandler}>
+                <input onChange={onChangeHandler} value={input} />
+                <button type={"submit"}>검색</button>
+            </form>
 
             {loading ? (
                 <div className={styles.message}>로딩 중입니다...</div>
